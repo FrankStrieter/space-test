@@ -1,0 +1,15 @@
+version: '3.8'
+services:
+  azure-pipeline-agent:
+    build: .
+    restart: always
+    privileged: true
+    deploy: 
+      resources:
+        limits:
+          memory: 15gb
+    env_file:
+      - .env
+    
+
+      

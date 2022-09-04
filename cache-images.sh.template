@@ -1,0 +1,2 @@
+# place docker pull commands here to load them in the local registry
+# docker pull docker pull mcr.microsoft.com/mssql/server:2017-latest

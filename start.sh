@@ -25,7 +25,7 @@ fi
 export AGENT_ALLOW_RUNASROOT="1"
 
 cleanup() {
-  if [ -e config.sh ]; then
+ 
     print_header "Cleanup. Removing Azure Pipelines agent..."
 
     # If the agent has some running jobs, the configuration removal process will fail.
@@ -36,7 +36,7 @@ cleanup() {
       echo "Retrying in 30 seconds..."
       sleep 30
     done
-  fi
+  
 }
 
 print_header() {

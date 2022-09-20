@@ -38,6 +38,17 @@ cleanup() {
     done
   
 }
+wait_for_docker() {
+    print_header "Waiting for docker..."
+    
+    while ! docker ps; do
+      
+      echo "Docker deamon not ready, retrying in 15 seconds..."
+      /etc/init.d/docker restart
+      sleep 15
+    done
+  
+}
 
 print_header() {
   lightcyan='\033[1;36m'
@@ -47,6 +58,7 @@ print_header() {
 
 # Let the agent ignore the token env variables
 export VSO_AGENT_IGNORE=AZP_TOKEN,AZP_TOKEN_FILE
+
 
 print_header "1. Determining matching Azure Pipelines agent..."
 
@@ -69,6 +81,16 @@ curl -LsS $AZP_AGENT_PACKAGE_LATEST_URL | tar -xz & wait $!
 
 source ./env.sh
 
+usermod -aG docker $(whoami)
+su - root
+/etc/init.d/docker start
+
+wait_for_docker
+
+trap 'cleanup; exit 0' EXIT
+trap 'cleanup; exit 130' INT
+trap 'cleanup; exit 143' TERM
+
 print_header "3. Configuring Azure Pipelines agent..."
 
 ./config.sh --unattended \
@@ -83,16 +105,9 @@ print_header "3. Configuring Azure Pipelines agent..."
 
 print_header "4. Running Azure Pipelines agent..."
 
-trap 'cleanup; exit 0' EXIT
-trap 'cleanup; exit 130' INT
-trap 'cleanup; exit 143' TERM
+[ -f "./cache-images.sh" ] && chmod +x ./cache-images.sh && ./cache-images.sh
 
 chmod +x ./run-docker.sh
-usermod -aG docker $(whoami)
-su - root
-/etc/init.d/docker start
-
-[ -f "./cache-images.sh" ] && ./cache-images.sh
 
 # To be aware of TERM and INT signals call run.sh
 # Running it with the --once flag at the end will shut down the agent after the build is executed

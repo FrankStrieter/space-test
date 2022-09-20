@@ -10,6 +10,3 @@ services:
           memory: 15gb
     env_file:
       - .env
-    
-
-      

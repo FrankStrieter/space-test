@@ -83,6 +83,8 @@ source ./env.sh
 
 usermod -aG docker $(whoami)
 su - root
+export DOCKER_CLIENT_TIMEOUT=120
+export COMPOSE_HTTP_TIMEOUT=120
 /etc/init.d/docker start
 
 wait_for_docker
